@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+        
+    <context:component-scan base-package="br.com.imusica.pushManager.api" />
+
+	<context:property-placeholder ignore-resource-not-found="true" location="classpath:connection.properties,file:${push.path}/connection.properties"/>	
+	
+	<bean id="emailUtil" class="br.com.imusica.pushManager.util.EmailUtil" />
+		
+	<bean id="gson" class="com.google.gson.Gson" factory-bean="gsonFactory" factory-method="create" />
+	 
+	<bean id="gsonFactory" class="com.google.gson.GsonBuilder">
+		<property name="dateFormat" value="yyyy-MM-dd HH:mm:ss"/>
+	</bean>
+	
+	<bean id="restProvider" class="com.imusica.restProvider.RestProvider" factory-method="client" >
+		<constructor-arg name="connectionPoolSize" value="${connection_pool_size}" />
+	</bean>
+	
+	<bean id="mqFactory" class="com.imusica.mqProvider.MQFactory" factory-method="getInstance" />
+	
+	<bean id="campaignProvider" class="com.imusica.mqProvider.rabbitmq.RabbitMQ" factory-bean="mqFactory" factory-method="getRabbitMQProvider">
+		<constructor-arg name="host" value="${mq_provider_host}" />
+		<constructor-arg name="username" value="${mq_provider_username}" />
+		<constructor-arg name="password" value="${mq_provider_password}" />
+		<constructor-arg name="vhost" value="campaign" />
+	</bean>
+	
+	<bean id="pushProvider" class="com.imusica.mqProvider.rabbitmq.RabbitMQ" factory-bean="mqFactory" factory-method="getRabbitMQProvider">
+		<constructor-arg name="host" value="${mq_provider_host}" />
+		<constructor-arg name="username" value="${mq_provider_username}" />
+		<constructor-arg name="password" value="${mq_provider_password}" />
+		<constructor-arg name="vhost" value="push" />
+	</bean>
+	
+	<bean id="rabbitAPI" class="br.com.imusica.pushManager.api.RabbitAPI" >
+		<constructor-arg name="host" value="${mq_provider_api}" />
+		<constructor-arg name="username" value="${mq_provider_username}" />
+		<constructor-arg name="password" value="${mq_provider_password}" />
+	</bean>
+	
+	<bean id="googleAPI" class="br.com.imusica.pushManager.api.GoogleAPI" >
+		<constructor-arg name="GCM_API_KEY" value="${gcm_api_key}" />
+		<constructor-arg name="time2live" value="${gcm_ttl}" />
+	</bean>
+	
+	<bean id="schedulerFactory" class="org.quartz.impl.StdSchedulerFactory" />
+	
+	<bean id="scheduler" class="org.quartz.Scheduler" factory-bean="schedulerFactory" factory-method="getScheduler" scope="singleton" />
+	
+	<bean id="sentryManager" class="br.com.imusica.pushManager.SentryManager" factory-method="setSentryInstance" >
+		<constructor-arg value="https://c7267231bf014d7981799d930f12c477:e3a93cc1f6f143c5aaacfce1fc8300c0@sentry.io/264327" />
+		<constructor-arg value="PRODUCTION" />	
+	</bean>
+	
+	<beans profile="manager">
+        <import resource="conf/spring-manager.xml" />
+    </beans>	
+	<beans profile="executor">
+        <import resource="conf/spring-executor.xml" />
+    </beans>
+    <beans profile="default">
+    	<import resource="conf/spring-manager.xml" />
+        <import resource="conf/spring-executor.xml" />
+    </beans>
+  	
+</beans>

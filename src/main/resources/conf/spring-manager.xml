@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	<context:component-scan base-package="br.com.imusica.pushManager.manager" />
+
+	<bean id="deviceDao" class="br.com.imusica.pushManager.dao.DeviceDao" />
+
+	<bean id="deviceInfoDao" class="br.com.imusica.pushManager.dao.DeviceInfoDao" />
+	
+	<bean id="campaignDao" class="br.com.imusica.pushManager.dao.CampaignDao" />
+	
+	<bean id="pushParameterDao" class="br.com.imusica.pushManager.dao.PushParameterDao" />
+
+	<bean id="mongodbProvider" class="br.com.imusica.mongodbProvider.MongoDBProvider">
+		<constructor-arg name="host" value="${mongo.host}" />
+		<constructor-arg name="port" value="${mongo.port}" />
+		<constructor-arg name="timeout" value="${mongo.timeout}" />
+		<constructor-arg name="maxIdleTime" value="${mongo.maxIdleTime}" />
+		<constructor-arg name="maxWaitTime" value="${mongo.maxWaitTime}" />
+		<constructor-arg name="maxConnections" value="${mongo.maxConnections}" />
+		<constructor-arg name="minConnections" value="${mongo.minConnections}" />
+		<constructor-arg name="database" value="${mongo.database}" />
+		<constructor-arg name="userName" value="${mongo.user}" />
+		<constructor-arg name="password" value="${mongo.password}" />
+	</bean>
+
+</beans>

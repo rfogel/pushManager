@@ -1,0 +1,10 @@
+.settings
+.classpath
+.project
+target
+src/main/resources/log
+src/main/resources/dev
+dependency-reduced-pom.xml
+/bin/
+
+dev\.xml

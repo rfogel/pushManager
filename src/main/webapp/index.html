@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>PUSH MANAGER</title>
+	<!-- <script src="/reload/reload.js"></script>
+	Reload -->
+
+	<script src="resource/js/jquery.js"></script>
+    <script src="resource/js/bootstrap-datetimepicker.js"></script>
+    <link href="resource/css/bootstrap-dataTables.css" rel="stylesheet">
+    
+    <link href="resource/css/bootstrap-datetimepicker.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="resource/css/jquery.dataTables.css">
+	<link rel="stylesheet" type="text/css" href="resource/css/jquery-ui.min.css">
+	<script type="text/javascript" src="resource/js/jquery.dataTables.js"></script>
+	<script type="text/javascript" src="resource/js/dataTables.bootstrap.js"></script>
+	<script type="text/javascript" src="resource/js/bootbox.min.js"></script>
+	<script type="text/javascript" src="resource/js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="resource/js/bootstrap.min.js"></script>
+
+	<style type="text/css">
+		.center {
+			margin-left:15px;
+			margin-right:15px;
+		}
+		input {
+			font-weight: normal
+		}
+		label {
+			font-weight: normal;
+		}
+		th .table-condensed {
+		    border: none !important;
+		}
+		h4 {
+			font-weight: bold
+		}
+		#fogel {
+		  position: absolute;
+		  left: 95%;
+		  top: 30%;
+		  z-index: 1;
+		  margin: -75px 0 0 -75px;
+		  border: 16px solid #f3f3f3;
+		  border-radius: 50%;
+		  border-top: 16px solid #3498db;
+		  width: 40px;
+		  height: 40px;
+		  -webkit-animation: spin 0.2s linear infinite;
+		  animation: spin 0.2s linear infinite;
+		}
+		
+		@-webkit-keyframes spin {
+		  0% { -webkit-transform: rotate(0deg); }
+		  100% { -webkit-transform: rotate(360deg); }
+		}
+		
+		@keyframes spin {
+		  0% { transform: rotate(0deg); }
+		  100% { transform: rotate(360deg); }
+		}
+		
+		/* Add animation to "page content" */
+		.animate-bottom {
+		  position: relative;
+		  -webkit-animation-name: animatebottom;
+		  -webkit-animation-duration: 1s;
+		  animation-name: animatebottom;
+		  animation-duration: 1s
+		}
+		
+		@-webkit-keyframes animatebottom {
+		  from { bottom:-100px; opacity:0 }
+		  to { bottom:0px; opacity:1 }
+		}
+		
+		@keyframes animatebottom {
+		  from{ bottom:-100px; opacity:0 }
+		  to{ bottom:0; opacity:1 }
+		}
+	</style>
+ 
+</head>
+<body class="container-fluid">
+
+	<div style="margin:15px 8px">
+
+		<div class="row">
+			<div class="col-md-4">
+				<div class="row row-eq-height">
+					<div class="col-md-8">
+						<h4>Configuration</h4>
+					</div>
+				</div>
+			  	<form class="form-horizontal">
+			  		<div class="form-group">
+			  			<label class="col-sm-2 control-label">Name</label>
+			  			<div class="col-sm-10">
+			  				<input type="text" id="name" class="form-control" placeholder="Campaign name">
+			  			</div>
+			  		</div>
+			  		<div class="form-group">
+			  			<label class="col-sm-2 control-label">Message</label>
+			  			<div class="col-sm-10">
+			  				<input type="text" id="message" class="form-control" placeholder="Campaign message">
+			  			</div>
+			  		</div>
+			  		<div class="form-group">
+			  			<label class="col-sm-2 control-label">Start</label>
+			  			<div class="col-sm-10">
+			  				<div id="start_datetimepicker" class="input-append date"> <input type="text" id="startDate" value="" readonly="true"> <span class="add-on"><i class="icon-th"></i></span> </div>
+			  			</div>
+			  		</div>
+			  		<div class="form-group">
+			  			<label class="col-sm-2 control-label">Finish</label>
+			  			<div class="col-sm-10">
+			  				<div id="end_datetimepicker" class="input-append date"> <input type="text" id="endDate" value="" readonly="true"> <span class="add-on"><i class="icon-th"></i></span></div>
+			  			</div>
+			  		</div>
+			  	</form>
+			</div>
+			  	
+			<div class="col-md-4">
+				<div class="row row-eq-height">
+					<div class="col-md-6">
+						<h4>Parameters</h4>
+					</div>
+					<div class="col-md-6">
+						<button class="btn btn-info btn-sm" onclick="addPushParameter()">Add</button>
+						<button class="btn btn-info btn-sm" onclick="clearPushParameters()">Clear</button>
+					</div>
+				</div>
+				<form class="form-inline pushParameter"></form>
+			</div>	
+					
+			<div class="col-md-4">
+				<div class="row row-eq-height">
+					<div class="col-md-6">
+						<h4>Filters</h4>
+					</div>
+					<div class="col-md-6">
+						<button class="btn btn-info btn-sm" onclick="addFilter()">Add</button>
+						<button class="btn btn-info btn-sm" onclick="clearFilter()">Clear</button>
+						<button id="previewButton" class="btn btn-success btn-sm" onclick="getPreview()">Preview</button>
+					</div>
+				</div>
+				<form class="form-inline filter"></form>
+				<label id="devicesFound"></label>
+			</div>
+	  	</div>
+		
+		<br>
+		<center><button id="sendPushButton" class="btn btn-success btn-sm" onclick="sendCampaign()">SEND CAMPAIGN</button></center> 
+		
+		<br><br>
+
+		<div>
+			<table id="commands" class="table table-striped table-bordered" >
+		        <thead>
+		            <tr>
+		                <th>Name</th>
+		                <th>Message</th>
+		                <th>Size</th>
+		                <th>Start</th>
+		                <th>Finish</th>
+		                <th>Parameters</th>
+		                <th>Filter</th>
+		                <th>Status</th>
+		                <th></th>
+		            </tr>
+		        </thead>
+		    </table>
+		</div>
+		
+		<div id="fogel" style="display:none"/>
+
+	</div>
+
+	<script type="text/javascript">
+		var filter='';
+		var pushParameter='';
+		var table;
+    	$(document).ready(function() 
+    	{   		
+    		$.ajax({
+				  type: "GET",
+				  url: "manager/deviceInfo/all",
+				  contentType: "application/json;charset=UTF-8"
+			}).done(function(data) {
+				var devices = '';
+				data.deviceTypes.forEach(function(d){devices += '<option>'+d+'</option>';});
+				filter = '<div class="form-group filterGroup" style="margin-bottom:15px"> <select class="form-control selectFilter" placeholder="Select">'+devices+'</select> <input type="text" placeholder="Value" class="form-control"/> <button class="btn btn-danger btn-sm" onclick="remFilter(this)">Remove</button> </div> </div>';
+			}).fail(function(data){
+		    	errorBox(data.responseText);
+		    });
+    		
+    		$.ajax({
+				  type: "GET",
+				  url: "manager/pushParameters/all",
+				  contentType: "application/json;charset=UTF-8"
+			}).done(function(data) {
+				var parameters = '';
+				data.pushParameters.forEach(function(d){parameters += '<option>'+d+'</option>';});
+				pushParameter = '<div class="form-group pushParameterGroup" style="margin-bottom:15px"> <select class="form-control selectParameter" placeholder="Select">'+parameters+'</select> <input type="text" placeholder="Value" class="form-control"/> <button class="btn btn-danger btn-sm" onclick="remPushParameter(this)">Remove</button> </div> </div>';
+			}).fail(function(data){
+		    	errorBox(data.responseText);
+		    });
+    		
+    		$('.date').datetimepicker({
+			    format: 'yyyy-mm-dd hh:ii:00',
+			    locale: 'pt'
+			});
+
+		    table = $('#commands').DataTable({
+		    	"ajax": {
+		    		"url": 'manager/campaign',
+			    	"dataSrc": ""
+		    	},
+		    	"autoWidth": true,
+		    	"bAutoWidth": true,
+		        "order": [[ 3, "desc" ]],
+		    	"paging":   true,
+	    		"ordering": true,
+	    		"info":     false,
+	    		"bFilter": 	false,
+	    		"columns": 
+		    		[
+	    	            { "data": "name" },
+	    	            { "data": "message" },
+	    	            { "data": "size", "defaultContent":"N/A" },
+	    	            { "data": "startDate" },
+	    	            { "data": "endDate" },
+	    	            { "data": "parameters", "defaultContent": ""},
+	    	            { "data": "filters", "defaultContent": ""},
+	    	            { "data": "status", className:"dt-body-center" },
+	    	            { className:"dt-body-center","defaultContent": "<button class='btn btn-danger btn-sm'>Delete</button>" }
+	    	        ],
+    	        "createdRow": function ( row, data, index ) {
+		    		if ( data.status == 'SCHEDULED' ) {
+		                $('td', row).eq(7).css({'color':'blue', 'font-weight':'bold'});
+		            }
+		    		else if ( data.status == 'RESCHEDULED' ) {
+		                $('td', row).eq(7).css({'color':'orange', 'font-weight':'bold'});
+		            }
+		            else if ( data.status == 'RUNNING' ) {
+		            	$('td', row).eq(7).css({'color':'green', 'font-weight':'bold'});
+		            } 
+		            else {
+		            	$('td', row).eq(7).css({'color':'red', 'font-weight':'bold'});
+		            }
+		        },
+		        "columnDefs": [
+                     {
+                         "data": "parameters",
+                         "render": function ( data, type, row ) {
+                        	 parameters = '';
+                        	 if ( data != undefined )
+                        	 {
+	                        	 data.forEach(function(element, index, array)
+	                    			{
+	                        		 parameters += element.key + ':' + element.value + ' '; 
+	                    			});
+                        	 }
+                             return parameters;
+                         },
+                         "targets": 5
+                     },
+                     {
+                         "data": "filters",
+                         "render": function ( data, type, row ) {
+                        	 filters = '';
+                        	 if ( data != undefined )
+                        	 {
+	                        	 data.forEach(function(element, index, array)
+	                    			{
+	                        		 	filters += element.key + ':' + element.value + ' '; 
+	                    			});
+                        	 }
+                             return filters;
+                         },
+                         "targets": 6
+                     },
+                 ],
+                 "language": {
+                     "emptyTable": "No campaigns found!"
+                 }
+		    });
+		    
+		    $('#commands tbody').on('click','button',function () {
+		        var data = table.row( $(this).parents('tr') ).data();
+		        deleteCampaign(data);
+		    } );
+		    
+		    setInterval( function () {
+	    	    table.ajax.reload();
+	    	}, 5000 );
+
+    	});
+    	
+    	var addPushParameter = function()
+    	{
+    		$('.pushParameter').append(pushParameter);
+    	};
+    	
+    	var remPushParameter = function(doc)
+    	{
+    		$(doc).closest('.pushParameterGroup').remove();
+    	};
+    	
+    	var clearPushParameters = function()
+    	{
+    		$('.pushParameter').html('');
+    	};
+    	
+    	var addFilter = function()
+    	{
+    		$('.filter').append(filter);
+    	};
+    	
+    	var remFilter = function(doc)
+    	{
+    		$(doc).closest('.filterGroup').remove();
+    	};
+    	
+    	var clearFilter = function()
+    	{
+    		$('.filter').html('');
+    	};
+    	
+    	var getPreview = function()
+    	{
+    		$("#fogel").css('display','block');
+    		$.ajax({
+			  type: "POST",
+			  url: "manager/campaign/preview",
+			  data: JSON.stringify(getData()),
+			  contentType: "application/json;charset=UTF-8"
+			}).done(function(data) {
+				$('#devicesFound').html('Devices found: ' + data);
+				$("#fogel").css('display','none');
+		    }).fail(function(data) {
+		    	errorBox(data.responseText);
+		    	$("#fogel").css('display','none');
+		    });
+    	}
+    	
+    	var sendCampaign = function()
+		{
+			if ( $('#name').val() == '' ) {
+				errorBox('Invalid campaign name');
+				return;
+			}
+			if ( $('#message').val() == '' ) {
+				errorBox('Invalid campaing message');
+				return;
+			}
+			if ( $('#startDate').val() == '' ) {
+				errorBox('Invalid campaing start date');
+				return;
+			}
+			if ( $('#endDate').val() == '' ) {
+				errorBox('Invalid campaing end date');
+				return;
+			}
+
+			var callback = function()
+			{
+    			$.ajax({
+				  type: "POST",
+				  url: "manager/campaign",
+				  data: JSON.stringify(getData()),
+				  contentType: "application/json;charset=UTF-8"
+				}).done(function(data) {
+					$('#name').val('');
+	    			$('#message').val('');
+	    			$('#startDate').val('');
+	    			$('#endDate').val('');
+			    }).fail(function(data) {
+			    	errorBox(data.responseText);
+			    });
+			}
+
+			confirmBox(callback);
+		};
+		
+		var deleteCampaign = function(campaign)
+		{
+			var callback = function()
+			{
+    			$.ajax({
+				  type: "DELETE",
+				  url: "manager/campaign",
+				  data: JSON.stringify(campaign),
+				  contentType: "application/json;charset=UTF-8"
+				}).done(function() {
+					table.ajax.reload();
+			    }).fail(function(data){
+			    	errorBox(data.responseText);
+			    });
+			}
+
+			confirmBox(callback);
+		}
+		
+		var getData = function()
+		{
+			var json = {};
+			
+			json['name'] = $('#name').val();
+			json['message'] = $('#message').val();
+			json['startDate'] = $('#startDate').val();
+			json['endDate'] = $('#endDate').val();
+			
+			if ( ! $('.filter').is(':empty') )
+			{		
+				var filters = [];
+				
+				$('.filter .selectFilter').each(function(data)
+				{
+					var filter = {}; 				
+					var value = $('.filter input:text').get(data);
+					
+					filter['key'] = $(this).val();
+					filter['value'] = $(value).val();
+					
+					filters.push(filter);
+				});
+				
+				json["filters"] = filters;
+			}
+			
+			if ( ! $('.pushParameter').is(':empty') )
+			{		
+				var filters = [];
+				
+				$('.pushParameter .selectParameter').each(function(data)
+				{
+					var filter = {}; 				
+					var value = $('.pushParameter input:text').get(data);
+					
+					filter['key'] = $(this).val();
+					filter['value'] = $(value).val();
+					
+					filters.push(filter);
+				});
+				
+				json["parameters"] = filters;
+			}
+			
+			return json;
+		};
+
+		var confirmBox = function(callback)
+    	{
+    		bootbox.confirm("Are you sure?", function(result) {
+	   		  	if ( result )
+	   		  		callback();
+	   		}); 
+    	};
+
+		var errorBox = function(errorMsg) 
+    	{
+    		bootbox.alert(errorMsg, function() {
+    			console.log(errorMsg);	
+    		});
+    	};
+
+    </script>
+	
+</body>
+</html>
