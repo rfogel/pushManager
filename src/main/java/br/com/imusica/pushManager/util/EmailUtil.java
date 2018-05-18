@@ -57,7 +57,7 @@ public final class EmailUtil
 		MimeMessage message = new MimeMessage(session);
 		
         message.setRecipients(Message.RecipientType.TO, toUser);
-        message.setFrom(new InternetAddress("noreplay@imusica.com.br", "PushManager"));
+        message.setFrom(new InternetAddress("xxx@xxx.com.br", "PushManager"));
         message.setSubject(subject);
         message.setText(text, "utf-8", "html");
         
